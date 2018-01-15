@@ -1,17 +1,18 @@
-## HW 1
+## HW 1 - Rachel Chang
 ## SI 364 W18
 ## 1000 points
 
 #################################
 
 ## List below here, in a comment/comments, the people you worked with on this assignment AND any resources you used to find code (50 point deduction for not doing so). If none, write "None".
-
+#Worked with Yuxuan Chen and used lecture/discussion material as resources
 
 
 ## [PROBLEM 1] - 150 points
 ## Below is code for one of the simplest possible Flask applications. Edit the code so that once you run this application locally and go to the URL 'http://localhost:5000/class', you see a page that says "Welcome to SI 364!"
 
-from flask import Flask
+from flask import Flask, request
+import requests 
 app = Flask(__name__)
 app.debug = True
 
@@ -19,9 +20,11 @@ app.debug = True
 def hello_to_you():
     return 'Hello!'
 
+@app.route("/class")
+def welcome_message():
+	return "Welcome to SI 364!"
 
-if __name__ == '__main__':
-    app.run()
+
 
 
 ## [PROBLEM 2] - 250 points
@@ -39,13 +42,38 @@ if __name__ == '__main__':
 
 ## Run the app locally (repeatedly) and try these URLs out!
 
+@app.route("/movie/<movie_title>")
+def movie_info(movie_title):
+	movie_data = {"term":movie_title, "media":"movie"}
+	return requests.get("https://itunes.apple.com/search", params = movie_data).text
+
 ## [PROBLEM 3] - 250 points
 
 ## Edit the above Flask application code so that if you run the application locally and got to the URL http://localhost:5000/question, you see a form that asks you to enter your favorite number.
 ## Once you enter a number and submit it to the form, you should then see a web page that says "Double your favorite number is <number>". For example, if you enter 2 into the form, you should then see a page that says "Double your favorite number is 4". Careful about types in your Python code!
 ## You can assume a user will always enter a number only.
 
+@app.route("/question")
+def fav_number():
+	number = """<!DOCTYPE html>
+<html>
+<body>
+<form action="/result" method="POST">
+  YOUR FAVORITE NUMBER:<br>
+  <input type="text" name="number" value="Enter Your Favorite Number">
+  <br>
+  <input type="submit" value="Submit">
+</form>
+</body>
+</html>"""
+	return number
 
+@app.route('/result',methods = ['POST', 'GET'])
+def displayData():
+     if request.method == 'POST':
+     	data = str(2 * (int(request.form["number"])))
+     	return ("Double your favorite number is " + data)
+     return "Sorry! Use a form"   
 ## [PROBLEM 4] - 350 points
 
 ## Come up with your own interactive data exchange that you want to see happen dynamically in the Flask application, and build it into the above code for a Flask application, following a few requirements.
@@ -65,3 +93,23 @@ if __name__ == '__main__':
 # You can assume that a user will give you the type of input/response you expect in your form; you do not need to handle errors or user confusion. (e.g. if your form asks for a name, you can assume a user will type a reasonable name; if your form asks for a number, you can assume a user will type a reasonable number; if your form asks the user to select a checkbox, you can assume they will do that.)
 
 # Points will be assigned for each specification in the problem.
+@app.route("/problem4form")
+def form_data():
+	search_form = """ <form action="http://localhost:5000/results" method='POST'>
+  <input type="text" name="artist" value="Enter Name of Artist"><br><br><br>
+  <input type="checkbox" name="answer1" value="Yes"> I like this Artist<br>
+  <input type="checkbox" name="answer2" value="No"> I don't like this Artist<br>
+  <input type="submit" value="Submit">
+</form>""" 
+	return(search_form)
+
+@app.route("/results", methods=["GET","POST"])
+def media_info():
+		data = request.form["artist"]
+		results = requests.get("https://itunes.apple.com/search?term=" + data).json()
+		medialist = ""
+		for data in results["results"]:
+			medialist += data["trackName"] + ", "
+		return(medialist)
+if __name__ == '__main__':
+    app.run(use_reloader=True, debug=True)
