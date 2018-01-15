@@ -70,10 +70,10 @@ def fav_number():
 
 @app.route('/result',methods = ['POST', 'GET'])
 def displayData():
-     if request.method == 'POST':
-     	data = str(2 * (int(request.form["number"])))
-     	return ("Double your favorite number is " + data)
-     return "Sorry! Use a form"   
+	if request.method == 'POST':
+		data = str(2 * (int(request.form["number"])))
+		return ("Double your favorite number is " + data)
+	return "Sorry! Use a form"   
 ## [PROBLEM 4] - 350 points
 
 ## Come up with your own interactive data exchange that you want to see happen dynamically in the Flask application, and build it into the above code for a Flask application, following a few requirements.
