@@ -105,11 +105,11 @@ def form_data():
 
 @app.route("/results", methods=["GET","POST"])
 def media_info():
-		data = request.form["artist"]
-		results = requests.get("https://itunes.apple.com/search?term=" + data).json()
-		medialist = ""
-		for data in results["results"]:
-			medialist += data["trackName"] + ", "
-		return(medialist)
+	data = request.form["artist"]
+	results = requests.get("https://itunes.apple.com/search?term=" + data).json()
+	medialist = ""
+	for data in results["results"]:
+		medialist += data["trackName"] + ", "
+	return(medialist)
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=True)
